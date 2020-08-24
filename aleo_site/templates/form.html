@@ -1,0 +1,546 @@
+<html>
+
+<head>
+    {% load static %}
+    <title>ALEO DATAVIZ</title>
+
+    <style>
+        @font-face {
+            font-family: 'Product Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url(https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2) format('woff2');
+        }
+
+        body {
+            background-color: whitesmoke;
+            font-family: 'Product Sans';
+            padding: 2%;
+            font-weight: lighter;
+        }
+
+        h2 {
+            background-color: cadetblue;
+            padding: 2%;
+            border-radius: 10px;
+            font-weight: lighter;
+        }
+
+        h3 {
+            background-color: lightblue;
+            padding: 2%;
+            border-radius: 10px;
+            font-weight: lighter;
+        }
+
+        h4 {
+            background-color: lightcyan;
+            padding: 2%;
+            border-radius: 10px;
+            font-weight: lighter;
+        }
+
+        h5 {
+            background-color: aliceblue;
+            padding: 2%;
+            border-radius: 10px;
+            font-weight: lighter;
+        }
+
+
+        input {
+            padding: 1%;
+            box-shadow: black;
+            border-radius: 10px;
+            font-family: 'Product Sans';
+        }
+
+
+        .form_q {
+            padding: 2%;
+            border-radius: 10px;
+        }
+
+        .form_unit {
+            background-color: white;
+            border-radius: 10px;
+
+        }
+
+        form {
+            padding: 2%;
+            border-radius: 10px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <h2>FORM</h2>
+    <div class="form_unit">
+
+        <form action="submission">
+            <h4>DATE</h4>
+            <div class="form_q">
+                <!--DATE-->
+
+                <input type="date" name="date"><br><br>
+            </div>
+
+            <h4>SELECT PLANT</h4>
+            <div class="form_q">
+                <!--PLANT SELECTOR-->
+
+                <select name="plant_options">
+                    <option selected="selected" disabled>Select</option>
+                    <option value="aleo_1">Aleo I</option>
+                    <option value="aleo_2">Aleo II</option>
+                    <option value="rukti">Rukti</option>
+                </select>
+            </div>
+
+            <div class="form_unit">
+                <!--UNIT I-->
+                <h3>UNIT I</h3>
+                <h4>WINDING TEMPERATURE</h4>
+                <div class="form_q">
+                    <!--WINDING TEMP-->
+                    <h5>Max value: </h5>
+                    <input type="number" name="u1_wt_max_value">
+                    <h5>Channel Number: </h5>
+                    <input type="number" name="u1_wt_channel">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u1_wt_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u1_wt_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u1_wt_ambient">
+                </div>
+                <h4>BEARING TEMPERATURE</h4>
+                <div class="form_q">
+                    <!--BEARING TEMP-->
+                    <h5>Max value: </h5>
+                    <input type="number" name="u1_bt_max_value">
+                    <h5>Channel Number: </h5>
+                    <input type="number" name="u1_bt_channel">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u1_bt_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u1_bt_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u1_bt_ambient">
+                </div>
+                <h4>GENERATOR VOLTAGE (KV)</h4>
+                <!--GENERATOR VOLTAGE-->
+                <div class="form_q">
+                    <h5>Max value: </h5>
+                    <input type="number" name="u1_gv_max_value">
+                    <h5>Min value: </h5>
+                    <input type="number" name="u1_gv_min">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u1_gv_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u1_gv_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u1_gv_ambient">
+                </div>
+                <h4>GENERATOR CURRENT (A)</h4>
+                <!--GENERATOR CURRENT-->
+                <div class="form_q">
+                    <h5>Max value: </h5>
+                    <input type="number" name="u1_gc_max_value">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u1_gc_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u1_gc_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u1_gc_ambient">
+                </div>
+                <h4>LINE VOLTAGE (A)</h4>
+                <!--LINE VOLTAGE-->
+                <div class="form_q">
+
+                    <h5>Max value: </h5>
+                    <input type="number" name="u1_lv_max_value">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u1_lv_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u1_lv_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u1_lv_ambient">
+                </div>
+                <h4>LOAD</h4>
+                <!--LOAD-->
+                <div class="form_q">
+
+                    <h5>Max value: </h5>
+                    <input type="number" name="u1_lo_max_value">
+                    <h5>Min value: </h5>
+                    <input type="number" name="u1_lo_min">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u1_lo_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u1_lo_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u1_lo_ambient">
+                </div>
+                <h4>AMBIENT TEMPERATURE</h4>
+                <!--GENERATOR VOLTAGE-->
+                <div class="form_q">
+
+                    <h5>Max value: </h5>
+                    <input type="number" name="u1_at_max">
+                    <h5>Min value: </h5>
+                    <input type="number" name="u1_at_min">
+                </div class="form_q">
+
+                <h4>AVERAGE LOAD</h4>
+                <div class=form_q>
+                    <h5>Max Value: </h5>
+                    <input type=number name="u1_avg_load">
+                </div>
+            </div>
+
+            <div class="form_unit">
+                <!--UNIT II-->
+                <div class="form_q">
+                    <!--WINDING TEMP-->
+                    <h3>UNIT II</h3>
+
+
+                    <h4>WINDING TEMPERATURE</h4>
+                    <h5>Max value: </h5>
+                    <input type="number" name="u2_wt_max_value">
+                    <h5>Channel Number: </h5>
+                    <input type="number" name="u2_wt_channel">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u2_wt_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u2_wt_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u2_wt_ambient">
+                </div>
+                <h4>BEARING TEMPERATURE</h4>
+                <div class="form_q">
+                    <!--BEARING TEMP-->
+
+                    <h5>Max value: </h5>
+                    <input type="number" name="u2_bt_max_value">
+                    <h5>Channel Number: </h5>
+                    <input type="number" name="u2_bt_channel">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u2_bt_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u2_bt_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u2_bt_ambient">
+                </div>
+                <h4>GENERATOR VOLTAGE (KV)</h4>
+                <!--GENERATOR VOLTAGE-->
+                <div class="form_q">
+
+                    <h5>Max value: </h5>
+                    <input type="number" name="u2_gv_max_value">
+                    <h5>Min value: </h5>
+                    <input type="number" name="u2_gv_min">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u2_wt_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u2_gv_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u2_gv_ambient">
+                </div>
+                <h4>GENERATOR CURRENT (A)</h4>
+                <!--GENERATOR CURRENT-->
+                <div class="form_q">
+
+                    <h5>Max value: </h5>
+                    <input type="number" name="u2_gc_max_value">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u2_gc_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u2_gc_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u2_gc_ambient">
+                </div>
+                <h4>LINE VOLTAGE (A)</h4>
+                <!--LINE VOLTAGE-->
+                <div class="form_q">
+
+                    <h5>Max value: </h5>
+                    <input type="number" name="u2_lv_max_value">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u2_lv_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u2_lv_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u2_lv_ambient">
+                </div>
+                <h4>LOAD</h4>
+                <!--LOAD-->
+                <div class="form_q">
+
+                    <h5>Max value: </h5>
+                    <input type="number" name="u2_lo_max_value">
+                    <h5>Min value: </h5>
+                    <input type="number" name="u2_lo_min">
+                    <h5>Time (HRS): </h5>
+                    <input type="time" name="u2_lo_time">
+                    <h5>Load (KW): </h5>
+                    <input type="number" name="u2_lo_load">
+                    <h5>Ambient Temperature (C): </h5>
+                    <input type="number" name="u2_lo_ambient">
+                </div>
+                <h4>AMBIENT TEMPERATURE</h4>
+                <!--GENERATOR VOLTAGE-->
+                <div class="form_q">
+
+                    <h5>Max value: </h5>
+                    <input type="number" name="u2_at_max">
+                    <h5>Min value: </h5>
+                    <input type="number" name="u2_at_min">
+                </div>
+                <h4>AVERAGE LOAD</h4>
+                <div class=form_q>
+                    <h5>Max Value: </h5>
+                    <input type=number name="u2_avg_load">
+                </div>
+            </div>
+
+            <div class="form_unit">
+                <h3>WEATHER</h3>
+                <div class="form_q">
+                    <input type="checkbox" name="clear"> Clear</input>
+                    <input type="checkbox" name="cloudy"> Cloudy</input>
+                    <input type="checkbox" name="rain"> Rain</input>
+                    <input type="checkbox" name="snow"> Snow</input>
+                    </select><br><br>
+                </div>
+            </div>
+
+            <div class="form_unit">
+                <h3>PRODUCTION</h3>
+                <div class="form_q">
+                    <h5>Unit I: </h5>
+                    <input type="number" name="u1_prod"><br>
+                    <h5>Unit II: </h5>
+                    <input type="number" name="u2_prod"><br><br>
+                </div>
+                <div class="form_q">
+                    <h5>Cumulative Monthly: </h5>
+                    <input type="number" name="cumul_monthly"><br>
+                    <h5>Cumulative G. Total: </h5>
+                    <input type="number" name="cumul_total"><br><br>
+                </div>
+            </div>
+
+            <div class="form_unit">
+                <h3>GATE o. 4 and VALVE (Aleo I Only)</h3>
+                <div class="form_q">
+                    <h5>Gate no. 4: </h5><br>
+                    <p>Maximum: </p><input type="number" name="g4_max"><br>
+                    <p>Minimum: </p><input type="number" name="g4_min"><br>
+                </div>
+                <div class="form_q">
+                    <h5>Valve-1: </h5>
+                    <select name="valve_1">
+                        <option selected="selected" disabled>Select</option>
+                        <option value="10">10%</option>
+                        <option value="20">20%</option>
+                        <option value="30">30%</option>
+                        <option value="40">40%</option>
+                        <option value="50">50%</option>
+                        <option value="60">60%</option>
+                        <option value="70">70%</option>
+                        <option value="80">80%</option>
+                        <option value="90">90%</option>
+                        <option value="100">100%</option>
+                        <option value="choked">Choked</option> <br>
+                    </select>
+                </div>
+                <div class="form_q">
+                    <h5>Valve-2: </h5>
+                    <select name="valve_2">
+                        <option selected="selected" disabled>Select</option>
+                        <option value="10">10%</option>
+                        <option value="20">20%</option>
+                        <option value="30">30%</option>
+                        <option value="40">40%</option>
+                        <option value="50">50%</option>
+                        <option value="60">60%</option>
+                        <option value="70">70%</option>
+                        <option value="80">80%</option>
+                        <option value="90">90%</option>
+                        <option value="100">100%</option>
+                        <option value="choked">Choked</option> <br>
+                    </select>
+                </div>
+
+                <div class="form_q">
+                    <h5>Valve-3: </h5>
+                    <select name="valve_3">
+                        <option selected="selected" disabled>Select</option>
+                        <option value="10">10%</option>
+                        <option value="20">20%</option>
+                        <option value="30">30%</option>
+                        <option value="40">40%</option>
+                        <option value="50">50%</option>
+                        <option value="60">60%</option>
+                        <option value="70">70%</option>
+                        <option value="80">80%</option>
+                        <option value="90">90%</option>
+                        <option value="100">100%</option>
+                        <option value="choked">Choked</option> <br>
+                    </select>
+                </div>
+
+                <div class="form_q">
+                    <h5>Valve-4: </h5>
+                    <select name="valve_4">
+                        <option selected="selected" disabled>Select</option>
+                        <option value="10">10%</option>
+                        <option value="20">20%</option>
+                        <option value="30">30%</option>
+                        <option value="40">40%</option>
+                        <option value="50">50%</option>
+                        <option value="60">60%</option>
+                        <option value="70">70%</option>
+                        <option value="80">80%</option>
+                        <option value="90">90%</option>
+                        <option value="100">100%</option>
+                        <option value="choked">Choked</option> <br>
+                    </select>
+                </div>
+                <div class="form_q">
+                    <h5>Valve-5: </h5>
+                    <select name="valve_5">
+                        <option selected="selected" disabled>Select</option>
+                        <option value="10">10%</option>
+                        <option value="20">20%</option>
+                        <option value="30">30%</option>
+                        <option value="40">40%</option>
+                        <option value="50">50%</option>
+                        <option value="60">60%</option>
+                        <option value="70">70%</option>
+                        <option value="80">80%</option>
+                        <option value="90">90%</option>
+                        <option value="100">100%</option>
+                        <option value="choked">Choked</option> <br><br>
+                    </select>
+                </div>
+                <h3>AUXILLIARY CONSUMPTION</h3>
+                <div class="form_unit">
+                    <div class="form_q">
+                        <h5>KW: </h5>
+                        <input type="number" name="aux_cons">
+                    </div>
+                </div>
+
+                <h3>STAFF ON LEAVE </h3>
+                <div class="form_unit">
+                    <div class="form_q">
+                        <h5>Number of staff on leave</h5>
+                        <input type="number" name="staff_num">
+                    </div>
+                    <div class="form_q">
+                        <h5>Names of staff on leave</h5>
+                        <input type="text" name="staff_names">
+                    </div>
+                </div>
+
+            </div>
+
+            <h3>OTHER</h3>
+            <div class="form_unit">
+                <h4>Discharge Counter</h4>
+                <div class="form_q">
+                    <h5>Time</h5>
+                    <input type="time" name="discharge_time">
+                    <h5>Discharge Counter I: </h5>
+                    <input type="number" name="dc1">
+                    <h5>Discharge Counter II: </h5>
+                    <input type="number" name="dc2">
+                    <h5>Discharge Counter III: </h5>
+                    <input type="number" name="dc3">
+
+                </div>
+            </div>
+
+
+
+            <div class="form_unit">
+                <h4>OT, WT: </h4>
+                <div class="form_q">
+                    <h5>OT Max-90</h5>
+                    <h6>T/F-1 (deg C)</h6>
+                    <input type="number" name="ot_tf1">
+                    <h6>T/F-2 (deg C)</h6>
+                    <input type="number" name="ot_tf2">
+                </div>
+                <div class="form_q">
+                    <h5>WT Max-90</h5>
+                    <h6>T/F-1 (deg C)</h6>
+                    <input type="number" name="wt_tf1">
+                    <h6>T/F-2 (deg C)</h6>
+                    <input type="number" name="wt_tf2">
+                </div>
+            </div>
+
+            <div class="form_unit">
+                <h4>OPU: </h4>
+                <div class="form_q">
+                    <h5>OPU 1 (deg C, max 80)</h5>
+                    <h6>Maximum</h6>
+                    <input type="number" name="opu1_max">
+                    <h6>Minimum</h6>
+                    <input type="number" name="opu1_min">
+                </div>
+                <div class="form_q">
+                    <h5>OPU 2 (deg C, max 80)</h5>
+                    <h6>Maximum</h6>
+                    <input type="number" name="opu2_max">
+                    <h6>Minimum</h6>
+                    <input type="number" name="opu2_min">
+                </div>
+            </div>
+
+            <div class="form_unit">
+                <h4>Cameras </h4>
+                <div class="form_q">
+                    <h6>Camera 1</h6>
+                    <input type="checkbox" name="cam1">
+                    <h6>Camera 2 </h6>
+                    <input type="checkbox" name="cam2">
+                    <h6>Camera 3 </h6>
+                    <input type="checkbox" name="cam3">
+
+                </div>
+            </div>
+
+            <h4>Remarks</h4>
+            <div class="form_unit">
+                <div class="form_q">
+                    <input type="text" name="remarks">
+                </div>
+            </div>
+
+            <h4>Prepared by: </h4>
+            <div class="form_unit">
+                <div class="form_q">
+                    <input type="text" name="prepared_by">
+                </div>
+            </div>
+
+            <div class="form_unit">
+                <div class="form_q">
+                    <input type="submit" style="padding: 1%;">
+
+
+                </div>
+            </div>
+
+
+        </form>
+</body>
+
+</html>
