@@ -79,4 +79,9 @@ export class Calculator {
         return secondValue;
     }
   }
+
+  public getDigitSum(): number {
+    const digits = this.current.replace(/[^0-9]/g, '').split('');
+    return digits.map(digit => parseInt(digit)).reduce((sum, digit) => sum + digit, 0);
+  }
 }
