@@ -82,18 +82,7 @@ export class Calculator {
   }
 
   public memoryStore = (): void => {
-    this.memory = parseFloat(this.current);
-  };
-
-  public memoryRecall = (): void => {
-    this.current = String(this.memory);
-  };
-
-  public memoryClear = (): void => {
-    this.memory = 0;
-  };
-
-  public memoryAdd = (): void => {
-    this.memory += parseFloat(this.current);
+    const currentValue = parseFloat(this.current);
+    this.memory = currentValue;
   };
 }
