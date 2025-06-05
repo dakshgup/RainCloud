@@ -3,6 +3,7 @@ export class Calculator {
   private previous: string = '';
   private operation: string = '';
   private waitingForNumber: boolean = false;
+  private memory: number = 0;
 
   public getCurrentDisplay(): string {
     return this.current;
@@ -79,4 +80,20 @@ export class Calculator {
         return secondValue;
     }
   }
+
+  public memoryStore = (): void => {
+    this.memory = parseFloat(this.current);
+  };
+
+  public memoryRecall = (): void => {
+    this.current = String(this.memory);
+  };
+
+  public memoryClear = (): void => {
+    this.memory = 0;
+  };
+
+  public memoryAdd = (): void => {
+    this.memory += parseFloat(this.current);
+  };
 }
