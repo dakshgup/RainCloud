@@ -23,4 +23,136 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calculator {
+  background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  width: 320px;
+  max-width: 90vw;
+}
+
+.display {
+  background: #000;
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 300;
+  text-align: right;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-family: 'SF Pro Display', -apple-system, sans-serif;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.btn {
+  border: none;
+  border-radius: 15px;
+  font-size: 1.4rem;
+  font-weight: 500;
+  height: 70px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  user-select: none;
+  font-family: 'SF Pro Display', -apple-system, sans-serif;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.btn.number {
+  background: linear-gradient(145deg, #505050, #3a3a3a);
+  color: #fff;
+}
+
+.btn.number:hover {
+  background: linear-gradient(145deg, #5a5a5a, #444);
+}
+
+.btn.operation {
+  background: linear-gradient(145deg, #ff9500, #e6850e);
+  color: #fff;
+}
+
+.btn.operation:hover {
+  background: linear-gradient(145deg, #ffad33, #ff9500);
+}
+
+.btn.clear {
+  background: linear-gradient(145deg, #a6a6a6, #8a8a8a);
+  color: #000;
+}
+
+.btn.clear:hover {
+  background: linear-gradient(145deg, #b3b3b3, #999);
+}
+
+.btn.equals {
+  background: linear-gradient(145deg, #ff9500, #e6850e);
+  color: #fff;
+  grid-column: span 2;
+}
+
+.btn.equals:hover {
+  background: linear-gradient(145deg, #ffad33, #ff9500);
+}
+
+.btn.zero {
+  grid-column: span 2;
+}
+
+@media (prefers-color-scheme: light) {
+  .calculator {
+    background: linear-gradient(145deg, #f0f0f0, #e0e0e0);
+    box-shadow: 
+      0 20px 40px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  
+  .btn.number {
+    background: linear-gradient(145deg, #fff, #f0f0f0);
+    color: #000;
+    box-shadow: 
+      0 4px 8px rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  
+  .btn.number:hover {
+    background: linear-gradient(145deg, #f8f8f8, #e8e8e8);
+  }
 }
