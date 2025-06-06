@@ -68,6 +68,90 @@ export class ContactManager {
       notes: "VP Engineering, enterprise client",
       createdAt: new Date("2024-03-10"),
       updatedAt: new Date("2024-03-10"),
+    },
+    {
+      id: "6",
+      firstName: "Jennifer",
+      lastName: "Martinez",
+      email: "jmartinez@globaltechcorp.com",
+      phone: "+1-555-0987",
+      company: "GlobalTech Corp",
+      notes: "Product Manager, mobile-first strategy",
+      createdAt: new Date("2024-11-15"),
+      updatedAt: new Date("2024-11-15"),
+    },
+    {
+      id: "7",
+      firstName: "Michael",
+      lastName: "Thompson",
+      email: "mthompson@cloudsync.io",
+      company: "CloudSync",
+      notes: "CEO, needs integration solutions",
+      createdAt: new Date("2024-11-20"),
+      updatedAt: new Date("2024-11-20"),
+    },
+    {
+      id: "8",
+      firstName: "Lisa",
+      lastName: "Wang",
+      email: "lwang@innovatetech.com",
+      phone: "+1-555-0234",
+      company: "InnovateTech",
+      notes: "Head of Engineering, AI/ML focus",
+      createdAt: new Date("2024-12-01"),
+      updatedAt: new Date("2024-12-01"),
+    },
+    {
+      id: "9",
+      firstName: "Robert",
+      lastName: "Davis",
+      email: "rdavis@startup123.com",
+      phone: "+1-555-0567",
+      company: "Startup123",
+      notes: "CTO, early-stage company",
+      createdAt: new Date("2024-12-05"),
+      updatedAt: new Date("2024-12-05"),
+    },
+    {
+      id: "10",
+      firstName: "Amanda",
+      lastName: "Lee",
+      email: "alee@digitalventures.net",
+      phone: "+1-555-0890",
+      company: "Digital Ventures",
+      notes: "Director of Technology, fintech background",
+      createdAt: new Date("2024-12-10"),
+      updatedAt: new Date("2024-12-10"),
+    },
+    {
+      id: "11",
+      firstName: "Carlos",
+      lastName: "Garcia",
+      email: "cgarcia@megacorp.com",
+      phone: "+1-555-0345",
+      company: "MegaCorp",
+      createdAt: new Date("2024-12-12"),
+      updatedAt: new Date("2024-12-12"),
+    },
+    {
+      id: "12",
+      firstName: "Nina",
+      lastName: "Patel",
+      email: "npatel@techsolutions.org",
+      company: "TechSolutions",
+      notes: "Senior Developer, DevOps specialist",
+      createdAt: new Date("2024-12-15"),
+      updatedAt: new Date("2024-12-15"),
+    },
+    {
+      id: "13",
+      firstName: "Kevin",
+      lastName: "Brown",
+      email: "kbrown@futuretech.io",
+      phone: "+1-555-0678",
+      notes: "Freelance consultant, blockchain expert",
+      createdAt: new Date("2024-12-18"),
+      updatedAt: new Date("2024-12-18"),
     }
   ];
 
@@ -131,7 +215,13 @@ export class ContactManager {
   getRecentContacts(days: number = 30): Contact[] {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
-    return this.contacts.filter(contact => contact.createdAt >= cutoffDate);
+    const recentContacts: Contact[] = [];
+    for (const contact of this.contacts) {
+      if (contact.createdAt >= cutoffDate) {
+        recentContacts.push(contact);
+      }
+    }
+    return recentContacts;
   }
 
   getContactsWithMissingInfo(): Contact[] {
