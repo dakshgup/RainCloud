@@ -173,7 +173,6 @@ export class ContactManager {
     this.contacts[contactIndex] = {
       ...this.contacts[contactIndex],
       ...contactData,
-      updatedAt: new Date(),
     };
     return this.contacts[contactIndex];
   }
