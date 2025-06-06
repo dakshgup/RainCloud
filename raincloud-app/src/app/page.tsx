@@ -1,18 +1,19 @@
-import Calculator from '../components/Calculator';
+import CRM from '../components/CRM';
 
 export default function Home() {
   return (
-    <div>
-      <h1 style={{ 
-        textAlign: 'center', 
-        marginBottom: '20px', 
-        fontSize: '2rem',
-        fontWeight: '300',
-        color: 'var(--foreground)'
-      }}>
-        RainCloud Calculator
-      </h1>
-      <Calculator />
+    <div className="fade-in-up">
+      <div className="text-center mb-8 fade-in-down">
+        <h1 className="text-3xl font-mono font-semibold tracking-tight">
+          RAINCLOUD_CRM
+        </h1>
+        <p className="text-zinc-500 font-mono text-sm mt-2 animate-stagger-1 fade-in-up">
+          LIGHTWEIGHT_CONTACT_MANAGEMENT
+        </p>
+      </div>
+      <div className="animate-stagger-2 fade-in-up">
+        <CRM />
+      </div>
     </div>
   );
 }
