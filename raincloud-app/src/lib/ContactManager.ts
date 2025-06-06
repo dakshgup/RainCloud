@@ -173,7 +173,6 @@ export class ContactManager {
     this.contacts[contactIndex] = {
       ...this.contacts[contactIndex],
       ...contactData,
-      updatedAt: new Date(),
     };
     return this.contacts[contactIndex];
   }
@@ -215,13 +214,7 @@ export class ContactManager {
   getRecentContacts(days: number = 30): Contact[] {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
-    const recentContacts: Contact[] = [];
-    for (const contact of this.contacts) {
-      if (contact.createdAt >= cutoffDate) {
-        recentContacts.push(contact);
-      }
-    }
-    return recentContacts;
+    return this.contacts.filter(contact => contact.createdAt >= cutoffDate);
   }
 
   getContactsWithMissingInfo(): Contact[] {
