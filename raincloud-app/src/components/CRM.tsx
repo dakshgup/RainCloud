@@ -101,6 +101,32 @@ export default function CRM() {
 
   const filteredContacts = getFilteredContacts();
 
+  const getContactAnalytics = () => {
+    const completedContacts = contacts
+      .filter(contact => contact.email && contact.phone && contact.company)
+      .map(contact => ({ ...contact, completeness: 'complete' }));
+    
+    const companyStats = completedContacts
+      .filter(contact => contact.company)
+      .map(contact => contact.company)
+      .reduce((acc, company) => {
+        acc[company!] = (acc[company!] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+    return {
+      totalContacts: contacts.length,
+      completeContacts: completedContacts.length,
+      topCompanies: Object.entries(companyStats)
+        .filter(([_, count]) => count > 0)
+        .map(([company, count]) => ({ company, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 3)
+    };
+  };
+
+  const analytics = getContactAnalytics();
+
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6 font-mono">
       {/* Header */}
@@ -174,6 +200,42 @@ export default function CRM() {
           )}
         </div>
       </div>
+
+      {/* Analytics */}
+      <Card className="scale-in">
+        <CardHeader>
+          <CardTitle className="text-lg">Contact Analytics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{analytics.totalContacts}</div>
+              <div className="text-sm text-zinc-500">Total Contacts</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{analytics.completeContacts}</div>
+              <div className="text-sm text-zinc-500">Complete Profiles</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">{analytics.topCompanies.length}</div>
+              <div className="text-sm text-zinc-500">Companies</div>
+            </div>
+          </div>
+          {analytics.topCompanies.length > 0 && (
+            <div className="mt-4">
+              <div className="text-sm font-medium text-zinc-700 mb-2">Top Companies:</div>
+              <div className="space-y-1">
+                {analytics.topCompanies.map((company, index) => (
+                  <div key={company.company} className="flex justify-between text-sm">
+                    <span>{company.company}</span>
+                    <span className="text-zinc-500">{company.count} contacts</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Add/Edit Form */}
       {showForm && (
