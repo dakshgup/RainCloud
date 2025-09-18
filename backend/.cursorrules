@@ -1,0 +1,26 @@
+# Backend Cursor Rules
+# Rules for server-side development
+
+## API Design
+- Use RESTful conventions
+- Implement proper HTTP status codes
+- Add comprehensive error handling
+- Use middleware for common functionality
+
+## Security
+- Always validate input data
+- Use environment variables for secrets
+- Implement rate limiting
+- Add proper authentication/authorization
+
+## Database
+- Use prepared statements for SQL queries
+- Implement proper connection pooling
+- Add database migration scripts
+- Use transactions for multi-step operations
+
+## Monitoring
+- Add proper logging throughout the application
+- Implement health check endpoints
+- Use structured logging format
+- Monitor performance metrics

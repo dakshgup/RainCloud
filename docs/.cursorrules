@@ -1,0 +1,26 @@
+# Documentation Cursor Rules
+# Rules for documentation files
+
+## Writing Style
+- Use clear, concise language
+- Write in active voice
+- Use consistent terminology
+- Include practical examples
+
+## Structure
+- Use proper heading hierarchy (H1 -> H6)
+- Include table of contents for long documents
+- Add cross-references between related docs
+- Use bullet points and numbered lists appropriately
+
+## Code Examples
+- Test all code examples before publishing
+- Include both input and expected output
+- Use proper syntax highlighting
+- Provide context for code snippets
+
+## Maintenance
+- Keep documentation up to date with code changes
+- Review docs regularly for accuracy
+- Use version control for documentation
+- Include screenshots where helpful

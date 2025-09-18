@@ -1,0 +1,26 @@
+# Scripts Cursor Rules
+# Rules for automation and build scripts
+
+## Script Development
+- Make scripts idempotent when possible
+- Add proper error handling and exit codes
+- Include usage instructions in comments
+- Use set -euo pipefail for bash scripts
+
+## Documentation
+- Add header comments explaining purpose
+- Document required parameters and environment variables
+- Include examples of script usage
+- Mention any prerequisites or dependencies
+
+## Portability
+- Use portable shell commands when possible
+- Handle different operating systems appropriately
+- Use absolute paths or properly handle relative paths
+- Test scripts in different environments
+
+## Maintenance
+- Keep scripts simple and focused
+- Use version control for all scripts
+- Add logging for debugging purposes
+- Regular review and cleanup of unused scripts

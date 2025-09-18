@@ -1,0 +1,26 @@
+# Frontend Cursor Rules
+# Rules for client-side development
+
+## UI/UX
+- Follow design system guidelines
+- Ensure accessibility (WCAG 2.1 AA)
+- Implement responsive design
+- Use semantic HTML elements
+
+## State Management
+- Keep state as local as possible
+- Use proper state management patterns
+- Implement optimistic UI updates
+- Handle loading and error states
+
+## Performance
+- Optimize images and assets
+- Implement code splitting
+- Use proper caching strategies
+- Monitor Core Web Vitals
+
+## Testing
+- Write unit tests for utilities
+- Add integration tests for user flows
+- Use proper test data setup/teardown
+- Mock external dependencies appropriately

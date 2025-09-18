@@ -1,0 +1,20 @@
+# Root Level Cursor Rules
+# Global project configuration for Cursor AI
+
+## Code Style
+- Use TypeScript for all new JavaScript files
+- Prefer functional components over class components
+- Use kebab-case for file names
+- Use camelCase for variable and function names
+
+## Formatting
+- Use 2 spaces for indentation
+- Maximum line length: 80 characters
+- Add semicolons at the end of statements
+- Use single quotes for strings
+
+## Best Practices
+- Always add proper error handling
+- Include JSDoc comments for functions
+- Use meaningful variable names
+- Prefer const over let when possible

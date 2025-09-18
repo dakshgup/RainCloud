@@ -1,0 +1,24 @@
+# Next.js App Cursor Rules
+# Specific rules for the Next.js application
+
+## Next.js Specific
+- Use App Router for all new pages
+- Prefer Server Components when possible
+- Use async/await for data fetching
+- Implement proper loading and error states
+
+## React Patterns
+- Use React hooks appropriately
+- Implement proper prop validation
+- Use React.memo for optimization when needed
+- Follow React 18+ best practices
+
+## File Structure
+- Keep components in src/components
+- Use index.ts files for clean exports
+- Organize by feature when applicable
+
+## Performance
+- Implement lazy loading for heavy components
+- Use Next.js Image component for images
+- Optimize bundle size with dynamic imports

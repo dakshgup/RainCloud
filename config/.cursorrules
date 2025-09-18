@@ -1,0 +1,26 @@
+# Configuration Cursor Rules
+# Rules for configuration files and settings
+
+## Configuration Management
+- Use environment-specific config files
+- Keep sensitive data in environment variables
+- Document all configuration options
+- Use validation for configuration values
+
+## File Formats
+- Prefer YAML for human-readable configs
+- Use JSON for programmatic configs
+- Add comments explaining complex settings
+- Use consistent naming conventions
+
+## Security
+- Never commit secrets to version control
+- Use proper file permissions for config files
+- Implement config validation at startup
+- Rotate secrets regularly
+
+## Organization
+- Group related configuration options
+- Use hierarchical structure for complex configs
+- Provide sensible defaults
+- Include example configuration files
