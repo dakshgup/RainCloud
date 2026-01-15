@@ -10,7 +10,9 @@ export const storage = {
       const data = localStorage.getItem(STORAGE_KEY);
       if (!data) return [];
 
-      const parsed = JSON.parse(data) as Array<Record<string, unknown>>;
+      const parsed = JSON.parse(data) as Array<Record<string, unknown>> | null;
+      if (!Array.isArray(parsed)) return [];
+
       return parsed.map((contact) => ({
         ...contact,
         createdAt: new Date(contact.createdAt as string),
