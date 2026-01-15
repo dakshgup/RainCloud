@@ -1,4 +1,5 @@
 import CRM from '../components/CRM';
+import UserDataFetcher from '../components/UserDataFetcher';
 
 export default function Home() {
   return (
@@ -13,6 +14,9 @@ export default function Home() {
       </div>
       <div className="animate-stagger-2 fade-in-up">
         <CRM />
+      </div>
+      <div className="animate-stagger-3 fade-in-up">
+        <UserDataFetcher />
       </div>
     </div>
   );
