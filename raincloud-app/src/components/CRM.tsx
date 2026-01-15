@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import { ContactManager, Contact, ContactFormData } from '../lib/ContactManager';
+import { storage } from '../lib/storage';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from './ui/sheet';
-import { Search, Plus, Edit2, Trash2, Mail, Phone, Building2, FileText, Filter, X } from 'lucide-react';
-
-const contactManager = new ContactManager();
+import { Search, Plus, Edit2, Trash2, Mail, Phone, Building2, FileText, Filter, X, RotateCcw } from 'lucide-react';
 
 export default function CRM() {
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [contactManager, setContactManager] = useState<ContactManager | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showEditDrawer, setShowEditDrawer] = useState(false);
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
@@ -28,24 +28,33 @@ export default function CRM() {
   });
 
   useEffect(() => {
-    setContacts(contactManager.getAllContacts());
+    // Initialize ContactManager with stored data or defaults
+    const storedContacts = storage.getContacts();
+    const manager = new ContactManager(storedContacts.length > 0 ? storedContacts : undefined);
+    setContactManager(manager);
+    setContacts(manager.getAllContacts());
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+    if (!contactManager) return;
+
     if (editingContact) {
       const updated = contactManager.updateContact(editingContact.id, formData);
       if (updated) {
-        setContacts(contactManager.getAllContacts());
+        const allContacts = contactManager.getAllContacts();
+        setContacts(allContacts);
+        storage.saveContacts(allContacts);
       }
       setShowEditDrawer(false);
     } else {
       contactManager.addContact(formData);
-      setContacts(contactManager.getAllContacts());
+      const allContacts = contactManager.getAllContacts();
+      setContacts(allContacts);
+      storage.saveContacts(allContacts);
       setShowForm(false);
     }
-    
+
     resetForm();
   };
 
@@ -63,9 +72,21 @@ export default function CRM() {
   };
 
   const handleDelete = (id: string) => {
+    if (!contactManager) return;
     if (confirm('Are you sure you want to delete this contact?')) {
       contactManager.deleteContact(id);
-      setContacts(contactManager.getAllContacts());
+      const allContacts = contactManager.getAllContacts();
+      setContacts(allContacts);
+      storage.saveContacts(allContacts);
+    }
+  };
+
+  const handleClearAllData = () => {
+    if (confirm('Are you sure you want to delete all contacts? This action cannot be undone.')) {
+      storage.clearContacts();
+      const manager = new ContactManager();
+      setContactManager(manager);
+      setContacts(manager.getAllContacts());
     }
   };
 
@@ -84,18 +105,20 @@ export default function CRM() {
   };
 
   const getFilteredContacts = () => {
+    if (!contactManager) return [];
+
     let result = contacts;
-    
+
     if (activeFilter === 'recent') {
       result = contactManager.getRecentContacts(30);
     } else if (activeFilter === 'incomplete') {
       result = contactManager.getContactsWithMissingInfo();
     }
-    
+
     if (searchQuery) {
       result = contactManager.searchContacts(searchQuery);
     }
-    
+
     return result;
   };
 
@@ -148,7 +171,7 @@ export default function CRM() {
             onClick={() => setActiveFilter('recent')}
             className="group"
           >
-            Recent ({contactManager.getRecentContacts(30).length})
+            Recent ({contactManager?.getRecentContacts(30).length || 0})
           </Button>
           <Button
             variant={activeFilter === 'incomplete' ? 'default' : 'outline'}
@@ -156,7 +179,7 @@ export default function CRM() {
             onClick={() => setActiveFilter('incomplete')}
             className="group"
           >
-            Incomplete ({contactManager.getContactsWithMissingInfo().length})
+            Incomplete ({contactManager?.getContactsWithMissingInfo().length || 0})
           </Button>
           {(searchQuery || activeFilter !== 'all') && (
             <Button
@@ -172,6 +195,16 @@ export default function CRM() {
               Clear
             </Button>
           )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleClearAllData}
+            className="group text-zinc-500 ml-auto"
+            title="Clear all saved contacts"
+          >
+            <RotateCcw className="mr-1 h-3 w-3 group-hover:rotate-180 transition-transform" />
+            Reset
+          </Button>
         </div>
       </div>
 
