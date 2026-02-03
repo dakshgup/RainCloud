@@ -1,15 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ContactManager, Contact, ContactFormData } from '../lib/ContactManager';
+import { ActivityLog, FieldChange } from '../lib/ActivityLog';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from './ui/sheet';
-import { Search, Plus, Edit2, Trash2, Mail, Phone, Building2, FileText, Filter, X } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Mail, Phone, Building2, FileText, Filter, X, Users, Activity } from 'lucide-react';
+import ActivityFeed from './ActivityFeed';
 
 const contactManager = new ContactManager();
+const activityLog = new ActivityLog();
 
 export default function CRM() {
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -18,6 +21,8 @@ export default function CRM() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'recent' | 'incomplete'>('all');
+  const [activeView, setActiveView] = useState<'contacts' | 'activity'>('contacts');
+  const [activityVersion, setActivityVersion] = useState(0);
   const [formData, setFormData] = useState<ContactFormData>({
     firstName: '',
     lastName: '',
@@ -33,19 +38,46 @@ export default function CRM() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (editingContact) {
+      // Calculate changes for audit log
+      const changes: FieldChange[] = [];
+      if (formData.firstName !== editingContact.firstName) {
+        changes.push({ field: 'firstName', oldValue: editingContact.firstName, newValue: formData.firstName });
+      }
+      if (formData.lastName !== editingContact.lastName) {
+        changes.push({ field: 'lastName', oldValue: editingContact.lastName, newValue: formData.lastName });
+      }
+      if (formData.email !== editingContact.email) {
+        changes.push({ field: 'email', oldValue: editingContact.email, newValue: formData.email });
+      }
+      if ((formData.phone || '') !== (editingContact.phone || '')) {
+        changes.push({ field: 'phone', oldValue: editingContact.phone || null, newValue: formData.phone || null });
+      }
+      if ((formData.company || '') !== (editingContact.company || '')) {
+        changes.push({ field: 'company', oldValue: editingContact.company || null, newValue: formData.company || null });
+      }
+      if ((formData.notes || '') !== (editingContact.notes || '')) {
+        changes.push({ field: 'notes', oldValue: editingContact.notes || null, newValue: formData.notes || null });
+      }
+
       const updated = contactManager.updateContact(editingContact.id, formData);
       if (updated) {
         setContacts(contactManager.getAllContacts());
+        if (changes.length > 0) {
+          activityLog.logContactUpdated(updated, changes);
+          setActivityVersion(v => v + 1);
+        }
       }
       setShowEditDrawer(false);
     } else {
-      contactManager.addContact(formData);
+      const newContact = contactManager.addContact(formData);
       setContacts(contactManager.getAllContacts());
+      activityLog.logContactCreated(newContact);
+      setActivityVersion(v => v + 1);
       setShowForm(false);
     }
-    
+
     resetForm();
   };
 
@@ -63,9 +95,12 @@ export default function CRM() {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this contact?')) {
+    const contact = contactManager.getContact(id);
+    if (contact && confirm('Are you sure you want to delete this contact?')) {
+      activityLog.logContactDeleted(contact);
       contactManager.deleteContact(id);
       setContacts(contactManager.getAllContacts());
+      setActivityVersion(v => v + 1);
     }
   };
 
@@ -83,19 +118,26 @@ export default function CRM() {
     setShowEditDrawer(false);
   };
 
+  const handleContactClickFromActivity = useCallback((contactId: string) => {
+    const contact = contactManager.getContact(contactId);
+    if (contact) {
+      handleEdit(contact);
+    }
+  }, []);
+
   const getFilteredContacts = () => {
     let result = contacts;
-    
+
     if (activeFilter === 'recent') {
       result = contactManager.getRecentContacts(30);
     } else if (activeFilter === 'incomplete') {
       result = contactManager.getContactsWithMissingInfo();
     }
-    
+
     if (searchQuery) {
       result = contactManager.searchContacts(searchQuery);
     }
-    
+
     return result;
   };
 
@@ -103,6 +145,34 @@ export default function CRM() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6 font-mono">
+      {/* View Toggle */}
+      <div className="flex gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-4 slide-in-from-left">
+        <Button
+          variant={activeView === 'contacts' ? 'default' : 'ghost'}
+          onClick={() => setActiveView('contacts')}
+          className="gap-2"
+        >
+          <Users className="h-4 w-4" />
+          Contacts
+        </Button>
+        <Button
+          variant={activeView === 'activity' ? 'default' : 'ghost'}
+          onClick={() => setActiveView('activity')}
+          className="gap-2"
+        >
+          <Activity className="h-4 w-4" />
+          Activity
+        </Button>
+      </div>
+
+      {activeView === 'activity' ? (
+        <ActivityFeed
+          key={activityVersion}
+          activityLog={activityLog}
+          onContactClick={handleContactClickFromActivity}
+        />
+      ) : (
+      <>
       {/* Header */}
       <div className="flex flex-col gap-4 slide-in-from-left">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -131,7 +201,7 @@ export default function CRM() {
             )}
           </Button>
         </div>
-        
+
         <div className="flex gap-2 flex-wrap">
           <Button
             variant={activeFilter === 'all' ? 'default' : 'outline'}
@@ -269,8 +339,8 @@ export default function CRM() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {filteredContacts.map((contact, index) => (
-              <Card 
-                key={contact.id} 
+              <Card
+                key={contact.id}
                 className={`hover:shadow-md transition-shadow scale-in animate-stagger-${Math.min(index + 1, 6)}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -328,6 +398,8 @@ export default function CRM() {
           </div>
         )}
       </div>
+      </>
+      )}
 
       {/* Edit Contact Drawer */}
       <Sheet open={showEditDrawer} onOpenChange={setShowEditDrawer}>
