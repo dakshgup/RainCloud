@@ -1,15 +1,18 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { ContactManager, Contact, ContactFormData } from '../lib/ContactManager';
+import { TagManager, Tag, SuggestedTag } from '../lib/TagManager';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from './ui/sheet';
-import { Search, Plus, Edit2, Trash2, Mail, Phone, Building2, FileText, Filter, X } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Mail, Phone, Building2, FileText, Filter, X, Tag as TagIcon } from 'lucide-react';
+import { TagSelector, TagBadge, TagFilterBar } from './TagSelector';
 
 const contactManager = new ContactManager();
+const tagManager = new TagManager();
 
 export default function CRM() {
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -18,6 +21,9 @@ export default function CRM() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'recent' | 'incomplete'>('all');
+  const [selectedTagFilters, setSelectedTagFilters] = useState<string[]>([]);
+  const [contactTags, setContactTags] = useState<Map<string, Tag[]>>(new Map());
+  const [contactSuggestions, setContactSuggestions] = useState<Map<string, SuggestedTag[]>>(new Map());
   const [formData, setFormData] = useState<ContactFormData>({
     firstName: '',
     lastName: '',
@@ -28,24 +34,57 @@ export default function CRM() {
   });
 
   useEffect(() => {
-    setContacts(contactManager.getAllContacts());
+    const allContacts = contactManager.getAllContacts();
+    setContacts(allContacts);
+
+    // Initialize tags and suggestions for all contacts
+    const tagsMap = new Map<string, Tag[]>();
+    const suggestionsMap = new Map<string, SuggestedTag[]>();
+
+    allContacts.forEach(contact => {
+      tagsMap.set(contact.id, tagManager.getTagsForContact(contact.id));
+      suggestionsMap.set(contact.id, tagManager.suggestTags(contact));
+    });
+
+    setContactTags(tagsMap);
+    setContactSuggestions(suggestionsMap);
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (editingContact) {
       const updated = contactManager.updateContact(editingContact.id, formData);
       if (updated) {
         setContacts(contactManager.getAllContacts());
+        // Update suggestions for edited contact
+        setContactSuggestions(prev => {
+          const next = new Map(prev);
+          next.set(editingContact.id, tagManager.suggestTags(updated));
+          return next;
+        });
       }
       setShowEditDrawer(false);
     } else {
-      contactManager.addContact(formData);
-      setContacts(contactManager.getAllContacts());
+      const newContact = contactManager.addContact(formData);
+      const allContacts = contactManager.getAllContacts();
+      setContacts(allContacts);
+
+      // Initialize tags and suggestions for new contact
+      setContactTags(prev => {
+        const next = new Map(prev);
+        next.set(newContact.id, []);
+        return next;
+      });
+      setContactSuggestions(prev => {
+        const next = new Map(prev);
+        next.set(newContact.id, tagManager.suggestTags(newContact));
+        return next;
+      });
+
       setShowForm(false);
     }
-    
+
     resetForm();
   };
 
@@ -66,6 +105,18 @@ export default function CRM() {
     if (confirm('Are you sure you want to delete this contact?')) {
       contactManager.deleteContact(id);
       setContacts(contactManager.getAllContacts());
+
+      // Clean up tags and suggestions
+      setContactTags(prev => {
+        const next = new Map(prev);
+        next.delete(id);
+        return next;
+      });
+      setContactSuggestions(prev => {
+        const next = new Map(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
@@ -83,23 +134,43 @@ export default function CRM() {
     setShowEditDrawer(false);
   };
 
-  const getFilteredContacts = () => {
+  const handleTagsChange = (contactId: string, tags: Tag[]) => {
+    setContactTags(prev => {
+      const next = new Map(prev);
+      next.set(contactId, tags);
+      return next;
+    });
+  };
+
+  const getFilteredContacts = useMemo(() => {
     let result = contacts;
-    
+
     if (activeFilter === 'recent') {
       result = contactManager.getRecentContacts(30);
     } else if (activeFilter === 'incomplete') {
       result = contactManager.getContactsWithMissingInfo();
     }
-    
-    if (searchQuery) {
-      result = contactManager.searchContacts(searchQuery);
-    }
-    
-    return result;
-  };
 
-  const filteredContacts = getFilteredContacts();
+    if (searchQuery) {
+      const lowercaseQuery = searchQuery.toLowerCase();
+      result = result.filter(contact =>
+        contact.firstName.toLowerCase().includes(lowercaseQuery) ||
+        contact.lastName.toLowerCase().includes(lowercaseQuery) ||
+        contact.email.toLowerCase().includes(lowercaseQuery) ||
+        contact.company?.toLowerCase().includes(lowercaseQuery)
+      );
+    }
+
+    // Filter by selected tags
+    if (selectedTagFilters.length > 0) {
+      result = result.filter(contact => {
+        const tags = contactTags.get(contact.id) || [];
+        return selectedTagFilters.some(tagId => tags.some(t => t.id === tagId));
+      });
+    }
+
+    return result;
+  }, [contacts, activeFilter, searchQuery, selectedTagFilters, contactTags]);
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6 font-mono">
@@ -131,7 +202,7 @@ export default function CRM() {
             )}
           </Button>
         </div>
-        
+
         <div className="flex gap-2 flex-wrap">
           <Button
             variant={activeFilter === 'all' ? 'default' : 'outline'}
@@ -158,13 +229,14 @@ export default function CRM() {
           >
             Incomplete ({contactManager.getContactsWithMissingInfo().length})
           </Button>
-          {(searchQuery || activeFilter !== 'all') && (
+          {(searchQuery || activeFilter !== 'all' || selectedTagFilters.length > 0) && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => {
                 setSearchQuery('');
                 setActiveFilter('all');
+                setSelectedTagFilters([]);
               }}
               className="group text-zinc-500"
             >
@@ -173,6 +245,13 @@ export default function CRM() {
             </Button>
           )}
         </div>
+
+        {/* Tag Filter Bar */}
+        <TagFilterBar
+          tagManager={tagManager}
+          selectedTagIds={selectedTagFilters}
+          onSelectionChange={setSelectedTagFilters}
+        />
       </div>
 
       {/* Add/Edit Form */}
@@ -246,15 +325,15 @@ export default function CRM() {
 
       {/* Contacts Grid */}
       <div className="grid gap-4 fade-in-up animate-stagger-2">
-        {filteredContacts.length === 0 ? (
+        {getFilteredContacts.length === 0 ? (
           <Card className="scale-in">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <div className="text-center text-zinc-500">
-                {searchQuery ? (
+                {searchQuery || selectedTagFilters.length > 0 ? (
                   <>
                     <Search className="mx-auto h-12 w-12 mb-4 opacity-50 pulse" />
                     <p className="text-lg fade-in-up">No contacts found</p>
-                    <p className="text-sm animate-stagger-1 fade-in-up">Try adjusting your search</p>
+                    <p className="text-sm animate-stagger-1 fade-in-up">Try adjusting your search or filters</p>
                   </>
                 ) : (
                   <>
@@ -268,9 +347,9 @@ export default function CRM() {
           </Card>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredContacts.map((contact, index) => (
-              <Card 
-                key={contact.id} 
+            {getFilteredContacts.map((contact, index) => (
+              <Card
+                key={contact.id}
                 className={`hover:shadow-md transition-shadow scale-in animate-stagger-${Math.min(index + 1, 6)}`}
                 style={{ animationDelay: `${index * 0.1}s` }}
               >
@@ -302,6 +381,24 @@ export default function CRM() {
                       <span className="line-clamp-2">{contact.notes}</span>
                     </div>
                   )}
+
+                  {/* Tags Section */}
+                  <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                    <div className="flex items-center gap-1 text-xs text-zinc-400 mb-2">
+                      <TagIcon className="h-3 w-3" />
+                      Tags
+                    </div>
+                    <div className="relative">
+                      <TagSelector
+                        tagManager={tagManager}
+                        contactId={contact.id}
+                        selectedTags={contactTags.get(contact.id) || []}
+                        suggestions={contactSuggestions.get(contact.id) || []}
+                        onTagsChange={(tags) => handleTagsChange(contact.id, tags)}
+                      />
+                    </div>
+                  </div>
+
                   <div className="flex gap-2 pt-3">
                     <Button
                       size="sm"
@@ -331,7 +428,7 @@ export default function CRM() {
 
       {/* Edit Contact Drawer */}
       <Sheet open={showEditDrawer} onOpenChange={setShowEditDrawer}>
-        <SheetContent className="w-full sm:max-w-md">
+        <SheetContent className="w-full sm:max-w-md overflow-y-auto">
           <SheetHeader className="fade-in-down">
             <SheetTitle>Edit Contact</SheetTitle>
             <SheetDescription>
@@ -380,6 +477,26 @@ export default function CRM() {
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={4}
             />
+
+            {/* Tags in Edit Drawer */}
+            {editingContact && (
+              <div className="space-y-2">
+                <label className="text-sm text-zinc-600 dark:text-zinc-400 flex items-center gap-2">
+                  <TagIcon className="h-4 w-4" />
+                  Tags
+                </label>
+                <div className="relative">
+                  <TagSelector
+                    tagManager={tagManager}
+                    contactId={editingContact.id}
+                    selectedTags={contactTags.get(editingContact.id) || []}
+                    suggestions={contactSuggestions.get(editingContact.id) || []}
+                    onTagsChange={(tags) => handleTagsChange(editingContact.id, tags)}
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3 pt-4">
               <Button type="submit" className="flex-1">
                 Update Contact
