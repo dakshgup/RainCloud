@@ -7,7 +7,8 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from './ui/sheet';
-import { Search, Plus, Edit2, Trash2, Mail, Phone, Building2, FileText, Filter, X } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Mail, Phone, Building2, FileText, Filter, X, BarChart3, Users } from 'lucide-react';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 const contactManager = new ContactManager();
 
@@ -18,6 +19,7 @@ export default function CRM() {
   const [editingContact, setEditingContact] = useState<Contact | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'recent' | 'incomplete'>('all');
+  const [activeView, setActiveView] = useState<'contacts' | 'analytics'>('contacts');
   const [formData, setFormData] = useState<ContactFormData>({
     firstName: '',
     lastName: '',
@@ -103,6 +105,30 @@ export default function CRM() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-6 font-mono">
+      {/* View Toggle */}
+      <div className="flex gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-4 slide-in-from-left">
+        <Button
+          variant={activeView === 'contacts' ? 'default' : 'ghost'}
+          onClick={() => setActiveView('contacts')}
+          className="gap-2"
+        >
+          <Users className="h-4 w-4" />
+          Contacts
+        </Button>
+        <Button
+          variant={activeView === 'analytics' ? 'default' : 'ghost'}
+          onClick={() => setActiveView('analytics')}
+          className="gap-2"
+        >
+          <BarChart3 className="h-4 w-4" />
+          Analytics
+        </Button>
+      </div>
+
+      {activeView === 'analytics' ? (
+        <AnalyticsDashboard contacts={contacts} />
+      ) : (
+      <>
       {/* Header */}
       <div className="flex flex-col gap-4 slide-in-from-left">
         <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -328,6 +354,8 @@ export default function CRM() {
           </div>
         )}
       </div>
+      </>
+      )}
 
       {/* Edit Contact Drawer */}
       <Sheet open={showEditDrawer} onOpenChange={setShowEditDrawer}>
