@@ -1,8 +1,10 @@
 import CRM from '../components/CRM';
+import ThemeToggle from '../components/ThemeToggle';
 
 export default function Home() {
   return (
     <div className="fade-in-up">
+      <ThemeToggle />
       <div className="text-center mb-8 fade-in-down">
         <h1 className="text-3xl font-mono font-semibold tracking-tight">
           RAINCLOUD_CRM
