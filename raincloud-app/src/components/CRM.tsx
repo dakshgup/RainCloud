@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ContactManager, Contact, ContactFormData } from '../lib/ContactManager';
+import { ImportedContact } from '../lib/DataImportExport';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from './ui/sheet';
 import { Search, Plus, Edit2, Trash2, Mail, Phone, Building2, FileText, Filter, X } from 'lucide-react';
+import DataImportExport from './DataImportExport';
 
 const contactManager = new ContactManager();
 
@@ -69,6 +71,33 @@ export default function CRM() {
     }
   };
 
+  const handleImport = useCallback((importedContacts: ImportedContact[]) => {
+    for (const contact of importedContacts) {
+      if (contact.existingId && (contact.resolution === 'overwrite' || contact.resolution === 'merge')) {
+        // Update existing contact
+        contactManager.updateContact(contact.existingId, {
+          firstName: contact.firstName,
+          lastName: contact.lastName,
+          email: contact.email,
+          phone: contact.phone,
+          company: contact.company,
+          notes: contact.notes,
+        });
+      } else {
+        // Create new contact
+        contactManager.addContact({
+          firstName: contact.firstName,
+          lastName: contact.lastName,
+          email: contact.email,
+          phone: contact.phone,
+          company: contact.company,
+          notes: contact.notes,
+        });
+      }
+    }
+    setContacts(contactManager.getAllContacts());
+  }, []);
+
   const resetForm = () => {
     setFormData({
       firstName: '',
@@ -116,20 +145,23 @@ export default function CRM() {
               className="pl-10"
             />
           </div>
-          <Button
-            onClick={() => setShowForm(!showForm)}
-            variant={showForm ? "outline" : "default"}
-            className="w-full sm:w-auto animate-stagger-1 scale-in"
-          >
-            {showForm ? (
-              <>Cancel</>
-            ) : (
-              <>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Contact
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2 items-center">
+            <DataImportExport contacts={contacts} onImport={handleImport} />
+            <Button
+              onClick={() => setShowForm(!showForm)}
+              variant={showForm ? "outline" : "default"}
+              className="w-full sm:w-auto animate-stagger-1 scale-in"
+            >
+              {showForm ? (
+                <>Cancel</>
+              ) : (
+                <>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Contact
+                </>
+              )}
+            </Button>
+          </div>
         </div>
         
         <div className="flex gap-2 flex-wrap">
