@@ -59,6 +59,11 @@ export interface ParsedContact {
   rowNumber: number;
 }
 
+export interface ImportedContact extends ContactFormData {
+  existingId?: string; // Set when overwriting/merging an existing contact
+  resolution?: ConflictResolution; // How this contact should be handled
+}
+
 export interface ImportResult {
   success: boolean;
   totalRows: number;
@@ -66,7 +71,7 @@ export interface ImportResult {
   skippedCount: number;
   errorCount: number;
   duplicateCount: number;
-  contacts: ContactFormData[];
+  contacts: ImportedContact[];
   errors: ImportValidationError[];
   duplicates: DuplicateMatch[];
   warnings: string[];
@@ -202,13 +207,14 @@ export class CSVParser {
 
       if (char === this.quoteChar) {
         if (inQuotes && nextChar === this.quoteChar) {
-          // Escaped quote
+          // Escaped quote - add single quote and skip the next one
           currentLine += char;
           i++; // Skip next quote
         } else {
+          // Opening or closing quote
           inQuotes = !inQuotes;
+          currentLine += char;
         }
-        currentLine += char;
       } else if ((char === '\n' || (char === '\r' && nextChar === '\n')) && !inQuotes) {
         if (currentLine.trim()) {
           lines.push(currentLine);
@@ -355,10 +361,27 @@ export class VCardParser {
   }
 
   private parseVCard(vcardContent: string): Record<string, string> | null {
-    const lines = vcardContent.split('\n').map(l => l.trim()).filter(l => l);
+    // Handle vCard line folding (RFC 2425) - lines starting with space/tab are continuations
+    const rawLines = vcardContent.split('\n');
+    const unfoldedLines: string[] = [];
+
+    for (const line of rawLines) {
+      if (line.startsWith(' ') || line.startsWith('\t')) {
+        // Continuation line - append to previous line (without the leading whitespace)
+        if (unfoldedLines.length > 0) {
+          unfoldedLines[unfoldedLines.length - 1] += line.slice(1);
+        }
+      } else {
+        const trimmed = line.trim();
+        if (trimmed) {
+          unfoldedLines.push(trimmed);
+        }
+      }
+    }
+
     const contact: Record<string, string> = {};
 
-    for (const line of lines) {
+    for (const line of unfoldedLines) {
       if (line.startsWith('END:VCARD')) continue;
       if (line.startsWith('VERSION:')) continue;
 
@@ -701,7 +724,7 @@ export class DataImporter {
         this.reportProgress('validating', i + 1, parsed.contacts.length, `Validated ${i + 1} of ${parsed.contacts.length}`);
       }
 
-      // Phase 3: Detect Duplicates
+      // Phase 3: Detect Duplicates and Handle Resolution
       this.reportProgress('detecting_duplicates', 0, parsedContacts.length, 'Detecting duplicates...');
 
       for (let i = 0; i < parsedContacts.length; i++) {
@@ -712,28 +735,78 @@ export class DataImporter {
           result.duplicates.push(...duplicates);
           result.duplicateCount++;
 
-          // Handle based on resolution strategy
-          if (options.duplicateHandling === 'skip') {
-            result.skippedCount++;
-            continue;
-          }
-        }
+          const bestMatch = duplicates[0]; // Highest confidence match
 
-        result.contacts.push({
-          firstName: contact.firstName,
-          lastName: contact.lastName,
-          email: contact.email,
-          phone: contact.phone,
-          company: contact.company,
-          notes: contact.notes,
-        });
-        result.importedCount++;
+          // Handle based on resolution strategy
+          switch (options.duplicateHandling) {
+            case 'skip':
+              result.skippedCount++;
+              continue;
+
+            case 'overwrite':
+              // Replace existing contact with imported data
+              result.contacts.push({
+                firstName: contact.firstName,
+                lastName: contact.lastName,
+                email: contact.email,
+                phone: contact.phone,
+                company: contact.company,
+                notes: contact.notes,
+                existingId: bestMatch.existingContact.id,
+                resolution: 'overwrite',
+              });
+              result.importedCount++;
+              break;
+
+            case 'merge':
+              // Keep existing data, only fill in empty fields
+              result.contacts.push({
+                firstName: contact.firstName || bestMatch.existingContact.firstName,
+                lastName: contact.lastName || bestMatch.existingContact.lastName,
+                email: contact.email || bestMatch.existingContact.email,
+                phone: contact.phone || bestMatch.existingContact.phone,
+                company: contact.company || bestMatch.existingContact.company,
+                notes: contact.notes || bestMatch.existingContact.notes,
+                existingId: bestMatch.existingContact.id,
+                resolution: 'merge',
+              });
+              result.importedCount++;
+              break;
+
+            case 'create_new':
+              // Create new contact regardless of duplicate
+              result.contacts.push({
+                firstName: contact.firstName,
+                lastName: contact.lastName,
+                email: contact.email,
+                phone: contact.phone,
+                company: contact.company,
+                notes: contact.notes,
+                resolution: 'create_new',
+              });
+              result.importedCount++;
+              break;
+          }
+        } else {
+          // No duplicate - add as new contact
+          result.contacts.push({
+            firstName: contact.firstName,
+            lastName: contact.lastName,
+            email: contact.email,
+            phone: contact.phone,
+            company: contact.company,
+            notes: contact.notes,
+            resolution: 'create_new',
+          });
+          result.importedCount++;
+        }
 
         this.reportProgress('detecting_duplicates', i + 1, parsedContacts.length, `Processed ${i + 1} of ${parsedContacts.length}`);
       }
 
       this.reportProgress('complete', result.importedCount, result.totalRows, 'Import complete');
-      result.success = result.errorCount === 0;
+      // Success means we imported at least one contact (partial success is still success)
+      result.success = result.importedCount > 0;
 
     } catch (error) {
       result.errors.push({

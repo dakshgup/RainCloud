@@ -34,6 +34,7 @@ import {
   ImportProgress,
   DuplicateMatch,
   ImportValidationError,
+  ImportedContact,
   FieldMapping,
   ConflictResolution,
   readFileAsText,
@@ -49,7 +50,7 @@ import {
 
 interface DataImportExportProps {
   contacts: Contact[];
-  onImport: (contacts: ContactFormData[]) => void;
+  onImport: (contacts: ImportedContact[]) => void;
 }
 
 // ============================================================================
@@ -107,7 +108,7 @@ interface ImportSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   existingContacts: Contact[];
-  onImport: (contacts: ContactFormData[]) => void;
+  onImport: (contacts: ImportedContact[]) => void;
 }
 
 function ImportSheet({ open, onOpenChange, existingContacts, onImport }: ImportSheetProps) {
@@ -153,28 +154,30 @@ function ImportSheet({ open, onOpenChange, existingContacts, onImport }: ImportS
       const content = await readFileAsText(file);
       setFileContent(content);
 
-      // Parse headers for CSV
-      if (detected === 'csv' || fileType === 'csv') {
+      // Parse headers for CSV - use detected value, not stale state
+      const effectiveFileType = detected || fileType;
+      if (effectiveFileType === 'csv') {
         const firstLine = content.split('\n')[0];
         const headers = firstLine.split(/[,;\t]/).map(h => h.replace(/"/g, '').trim());
         setDetectedHeaders(headers);
 
         // Auto-detect mappings
-        const autoMappings = headers
-          .map(header => {
-            const match = DEFAULT_CSV_MAPPINGS.find(
-              m => m.sourceField === header.toLowerCase()
-            );
-            return match ? { ...match, sourceField: header } : null;
-          })
-          .filter(Boolean) as FieldMapping[];
+        const autoMappings: FieldMapping[] = [];
+        for (const header of headers) {
+          const match = DEFAULT_CSV_MAPPINGS.find(
+            m => m.sourceField === header.toLowerCase()
+          );
+          if (match) {
+            autoMappings.push({ ...match, sourceField: header });
+          }
+        }
 
         setFieldMappings(autoMappings);
       }
 
       setStep('mapping');
-    } catch (error) {
-      console.error('Failed to read file:', error);
+    } catch {
+      // File read error - user will see no content loaded
     }
   }, [fileType]);
 
@@ -208,7 +211,8 @@ function ImportSheet({ open, onOpenChange, existingContacts, onImport }: ImportS
     setImportResult(result);
     setStep('results');
 
-    if (result.success && result.contacts.length > 0) {
+    // Import valid contacts even if some rows had errors (partial success)
+    if (result.contacts.length > 0) {
       onImport(result.contacts);
     }
   }, [fileType, fieldMappings, duplicateHandling, existingContacts, fileContent, onImport]);

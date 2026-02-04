@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ContactManager, Contact, ContactFormData } from '../lib/ContactManager';
+import { ImportedContact } from '../lib/DataImportExport';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
@@ -70,10 +71,30 @@ export default function CRM() {
     }
   };
 
-  const handleImport = useCallback((importedContacts: ContactFormData[]) => {
-    importedContacts.forEach(contact => {
-      contactManager.addContact(contact);
-    });
+  const handleImport = useCallback((importedContacts: ImportedContact[]) => {
+    for (const contact of importedContacts) {
+      if (contact.existingId && (contact.resolution === 'overwrite' || contact.resolution === 'merge')) {
+        // Update existing contact
+        contactManager.updateContact(contact.existingId, {
+          firstName: contact.firstName,
+          lastName: contact.lastName,
+          email: contact.email,
+          phone: contact.phone,
+          company: contact.company,
+          notes: contact.notes,
+        });
+      } else {
+        // Create new contact
+        contactManager.addContact({
+          firstName: contact.firstName,
+          lastName: contact.lastName,
+          email: contact.email,
+          phone: contact.phone,
+          company: contact.company,
+          notes: contact.notes,
+        });
+      }
+    }
     setContacts(contactManager.getAllContacts());
   }, []);
 
